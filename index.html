@@ -1,0 +1,119 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE PRIMAL & THE DUAL — two problems, one value</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--paper:#f4ead6;--paper2:#ece0c4;--ink:#2c2118;--ink2:#5c4a34;--faint:#a08a68;--line:#d8c39a;
+    --gold:#b8912f;--gold2:#d8b24a;--carbon:#c1502a;--silicon:#2f6e9e;--green:#3f7d52;--amber:#a9781f;--red:#a83a28;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--mono:ui-monospace,"DejaVu Sans Mono",Menlo,Consolas,monospace;}
+  html,body{background:var(--paper);color:var(--ink);font-family:var(--serif);line-height:1.6}
+  body{background-image:radial-gradient(circle at 50% 0%,#f9f0de,var(--paper) 62%,var(--paper2));min-height:100vh}
+  .wrap{max-width:720px;margin:0 auto;padding:26px 18px 60px}
+  .kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);text-align:center}
+  h1{font-size:clamp(24px,5.6vw,40px);font-weight:800;letter-spacing:.5px;text-align:center;margin-top:6px;color:var(--ink)}
+  .say{text-align:center;font-family:var(--mono);font-size:12px;color:var(--ink2);margin-top:6px}
+  .lede{text-align:center;font-size:14.5px;color:var(--ink2);max-width:62ch;margin:10px auto 0}.lede b{color:var(--ink)}.lede .p{color:var(--carbon);font-weight:700}.lede .d{color:var(--silicon);font-weight:700}
+  .lp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}@media(max-width:600px){.lp{grid-template-columns:1fr}}
+  .prob{background:#fbf4e4;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--mono);font-size:12px}
+  .prob.p{border-top:3px solid var(--carbon)}.prob.d{border-top:3px solid var(--silicon)}
+  .prob h3{font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}.prob.p h3{color:var(--carbon)}.prob.d h3{color:var(--silicon)}
+  .prob .obj{font-size:14px;font-weight:800;color:var(--ink)}
+  .prob .con{color:var(--ink2);margin-top:6px;line-height:1.7}
+  .stage{background:#fbf4e4;border:1px solid var(--line);border-radius:12px;padding:18px 16px 12px;margin:10px 0}
+  canvas{display:block;width:100%;height:120px}
+  .ctl{max-width:440px;margin:6px auto 0}
+  .lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--ink2)}.lab b{color:var(--gold)}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:#e2d3ad;border-radius:2px;margin-top:5px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 8px rgba(184,145,47,.6)}
+  input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--gold);border:none}
+  .read{max-width:520px;margin:12px auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;font-family:var(--mono)}
+  .read .m{background:#fbf4e4;border:1px solid var(--line);border-radius:7px;padding:8px 4px}
+  .read .m .v{font-size:17px;font-weight:800}.read .m.p .v{color:var(--carbon)}.read .m.d .v{color:var(--silicon)}.read .m.g .v{color:var(--green)}
+  .read .m .l{font-size:8px;color:var(--faint);text-transform:uppercase;margin-top:3px}
+  .state{text-align:center;font-family:var(--mono);font-size:12px;color:var(--gold);margin-top:2px;min-height:1.4em}
+  h2{font-family:var(--mono);font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin:24px 0 8px;text-align:center}
+  p.b{font-size:14.5px;margin:8px auto;max-width:62ch}p.b b{color:var(--ink)}
+  .tiers{margin:20px auto;max-width:64ch}
+  .t{border-left:3px solid;padding:8px 0 8px 14px;margin:10px 0;font-size:13px;line-height:1.6}
+  .t.g{border-color:var(--green)}.t.g b{color:var(--green)}.t.a{border-color:var(--amber)}.t.a b{color:var(--amber)}.t.r{border-color:var(--red)}.t.r b{color:var(--red)}
+  .t .lab2{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+  .foot{text-align:center;font-family:var(--mono);font-size:10px;color:var(--ink2);margin-top:26px;border-top:1px solid var(--line);padding-top:14px;line-height:1.8}.foot .g{color:var(--gold)}
+</style></head>
+<body><div class="wrap">
+  <div class="kick">dyas · an OPTIMIZATION duality · measured</div>
+  <h1>THE PRIMAL &amp; THE DUAL</h1>
+  <div class="say">max c·x (resources) &nbsp;⟺&nbsp; min b·y (prices) &nbsp;·&nbsp; strong duality: the two optima are EQUAL</div>
+  <p class="lede">Every optimization has a <b>shadow</b>. A <span class="p">primal</span> that maximizes output under limits has a <span class="d">dual</span> that minimizes the value of those limits — a different question, a different variable, a different shape. Yet at the optimum they meet on the <b>same number</b>. Two problems, one value.</p>
+
+  <div class="lp">
+    <div class="prob p"><h3>◧ primal — maximize</h3><div class="obj">max 3x + 2y</div>
+      <div class="con">x + y ≤ 4<br>x + 3y ≤ 6<br>x, y ≥ 0<br><br>optimum: <b>12</b> at (4, 0)</div></div>
+    <div class="prob d"><h3>dual — minimize ◨</h3><div class="obj">min 4y₁ + 6y₂</div>
+      <div class="con">y₁ + y₂ ≥ 3<br>y₁ + 3y₂ ≥ 2<br>y₁, y₂ ≥ 0<br><br>optimum: <b>12</b> at (3, 0)</div></div>
+  </div>
+
+  <div class="stage">
+    <canvas id="cv" width="640" height="120"></canvas>
+    <div class="ctl">
+      <div class="lab"><span>tighten both toward optimum &nbsp; <span style="color:var(--faint)">(weak duality: primal ≤ 12 ≤ dual, always)</span></span><b id="tv">0%</b></div>
+      <input type="range" id="t" min="0" max="1" step="0.01" value="0.35">
+    </div>
+  </div>
+  <div class="read">
+    <div class="m p"><div class="v" id="pv">—</div><div class="l">primal value (≤)</div></div>
+    <div class="m g"><div class="v" id="gap">—</div><div class="l">duality gap</div></div>
+    <div class="m d"><div class="v" id="dv">—</div><div class="l">dual value (≥)</div></div>
+  </div>
+  <div class="state" id="state"></div>
+
+  <h2>the gap that closes to zero</h2>
+  <p class="b"><b>Weak duality</b> is free: any feasible primal value is ≤ any feasible dual value, so the primal is forever trapped <b>below</b> and the dual <b>above</b> — 12 sits between them like a wall. <b>Strong duality</b> is the theorem: for a feasible linear program the wall is <b>touched from both sides</b> — the gap closes to <b>exactly zero</b>, and the two problems agree. Drag to squeeze them shut.</p>
+
+  <div class="tiers">
+    <div class="t g"><span class="lab2">green · measured</span><br>Primal optimum <b>= 12</b> (vertex (4,0)) and dual optimum <b>= 12</b> (vertex (3,0)) — enumerated and node-verified, gap <b>0</b>. Weak duality (primal ≤ dual) holds for every feasible pair shown; the live squeeze never lets the primal cross 12 or the dual fall below it.</div>
+    <div class="t a"><span class="lab2">amber · the framing</span><br>"Resources vs prices / a problem and its shadow" is the standard economic reading (the dual variables are shadow prices), but it is an interpretation laid over the algebra. One concrete LP is shown; the equality is a general theorem, illustrated by this instance.</div>
+    <div class="t r"><span class="lab2">red · conditions</span><br>Strong duality here rests on LP feasibility (Slater/feasible-bounded). It can FAIL with a duality gap for some non-convex or infeasible/unbounded problems — a powerful duality with real hypotheses, not a universal law.</div>
+  </div>
+
+  <div class="foot"><span class="g">DYAS · the Primal &amp; the Dual</span> · strong duality, 12 = 12 · David Lee Wise / ROOT0, with AVAN · CC-BY-ND-4.0</div>
+</div>
+<script>
+"use strict";
+(function(){
+  var cv=document.getElementById("cv"),cx=cv.getContext("2d"),dpr=Math.min(devicePixelRatio||1,2);
+  function fit(){var w=cv.clientWidth||640,h=120;cv.width=w*dpr;cv.height=h*dpr;cx.setTransform(dpr,0,0,dpr,0,0);return [w,h];}
+  var col=function(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()||"#000";};
+  var T=0.35, OPT=12, VMAX=20;
+  function render(){
+    var d=fit(),W=d[0],H=d[1];cx.clearRect(0,0,W,H);
+    var pad=30, axY=H-40, x0=pad, x1=W-pad;
+    var vx=function(v){return x0+(v/VMAX)*(x1-x0);};
+    // axis
+    cx.strokeStyle="rgba(160,120,40,0.3)";cx.lineWidth=1.5;cx.beginPath();cx.moveTo(x0,axY);cx.lineTo(x1,axY);cx.stroke();
+    cx.fillStyle=col("--faint");cx.font="9px "+col("--mono");cx.textAlign="center";
+    for(var v=0;v<=20;v+=4){var X=vx(v);cx.beginPath();cx.moveTo(X,axY-3);cx.lineTo(X,axY+3);cx.stroke();cx.fillText(String(v),X,axY+15);}
+    // primal value 12t, dual 20-8t
+    var pV=OPT*T, dV=VMAX-8*T;
+    // the wall at 12
+    var wx=vx(OPT);cx.strokeStyle=col("--gold");cx.lineWidth=2.5;cx.beginPath();cx.moveTo(wx,10);cx.lineTo(wx,axY);cx.stroke();
+    cx.fillStyle=col("--gold");cx.textAlign="center";cx.font="700 12px "+col("--mono");cx.fillText("12",wx,8);
+    // primal shaded (0..pV) carbon
+    cx.fillStyle="rgba(193,80,42,0.16)";cx.fillRect(x0,axY-26,vx(pV)-x0,26);
+    cx.fillStyle="rgba(47,110,158,0.14)";cx.fillRect(vx(dV),axY-26,x1-vx(dV),26);
+    // markers
+    function marker(v,color,label,up){var X=vx(v),Y=axY;cx.fillStyle=color;cx.beginPath();cx.arc(X,Y,7,0,7);cx.fill();
+      cx.fillStyle=color;cx.font="700 11px "+col("--mono");cx.textAlign="center";cx.fillText(label,X,up?Y-14:Y+26);}
+    marker(pV,col("--carbon"),"primal ≤",true);
+    marker(dV,col("--silicon"),"dual ≥",false);
+    // readouts
+    document.getElementById("pv").textContent=pV.toFixed(2);
+    document.getElementById("dv").textContent=dV.toFixed(2);
+    document.getElementById("gap").textContent=(dV-pV).toFixed(2);
+    document.getElementById("tv").textContent=Math.round(T*100)+"%";
+    var st=document.getElementById("state");
+    st.textContent = T>=0.999 ? "OPTIMUM — gap = 0. primal 12 = dual 12. strong duality." :
+      "gap "+(dV-pV).toFixed(2)+" · primal "+pV.toFixed(1)+" ≤ 12 ≤ "+dV.toFixed(1)+" dual — the wall holds.";
+  }
+  document.getElementById("t").addEventListener("input",function(e){T=+e.target.value;render();});
+  addEventListener("resize",render);render();
+})();
+</script></body></html>
