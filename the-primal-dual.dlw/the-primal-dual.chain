@@ -1,0 +1,9 @@
+ROOT0-DLW-CHAIN-v1
+index : 1238
+slug  : the-primal-dual
+seal  : 51de88be0c8ccd11f2b4b3546931c12c15b57e229efb749df354e48318940b51
+prev  : 2868b1bf73f0ddbea298bf797d72fe7600a71d7eca80ace9c75b4047f4324dd1
+link  : bd461e5908c0b11ac61d2ec1eb3e800ab2683a29c546171f7573690ca8e99ee2
+head  : bd461e5908c0b11ac61d2ec1eb3e800ab2683a29c546171f7573690ca8e99ee2
+
+— the tether: link = sha256(index|slug|seal|prev). the chain head commits to the whole corpus.
